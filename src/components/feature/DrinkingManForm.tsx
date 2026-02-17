@@ -157,37 +157,51 @@ export function DrinkingManForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Submit clicked"); // DEBUG
+    console.log("Submit clicked");
+
+    // Validation
+    if (!formData.baseSpirit) {
+      alert(t("errors.missingSpirit") || "Please select a base spirit.");
+      return;
+    }
+    if (!formData.occasion) {
+      alert(t("errors.missingOccasion") || "Please select an occasion.");
+      return;
+    }
+    if (!formData.mood) {
+      alert(t("errors.missingMood") || "Please select a mood.");
+      return;
+    }
+
     setLoading(true);
     setResponse(null);
 
     try {
-      console.log("Form Data:", formData); // DEBUG
-      console.log("Slider Values:", sliderValues); // DEBUG
-
       // Create a temporary data object with the mapped flavors
       const submissionData = {
         ...formData,
         flavorProfile: getMappedFlavors(),
       };
 
-      console.log("Mapped Submission Data:", submissionData); // DEBUG
+      console.log("Submitting:", submissionData);
 
-      // Pass the blacklist to the API
-      console.log(
-        "Calling calling Gemini API with:",
-        locale,
-        unavailableIngredients,
-      ); // DEBUG
       const result = await askDrinkingMan(
         submissionData,
         locale,
         unavailableIngredients,
       );
-      console.log("Gemini Result:", result); // DEBUG
-      setResponse(result);
+
+      if (!result) {
+        alert(
+          "Sorry, The Drinking Man is taking a nap (API Error). Please try again.",
+        );
+        console.error("API returned null");
+      } else {
+        setResponse(result);
+      }
     } catch (error) {
       console.error("Error in handleSubmit:", error);
+      alert("An unexpected error occurred.");
     } finally {
       setLoading(false);
     }

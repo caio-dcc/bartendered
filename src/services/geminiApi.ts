@@ -23,13 +23,23 @@ export async function askDrinkingMan(
   locale: string = 'en',
   unavailableIngredients: string[] = [] // Optional: ingredients to EXCLUDE
 ): Promise<DrinkingManResponse | null> {
+  console.log(`[askDrinkingMan] Invoked with locale: ${locale}, blacklist: ${unavailableIngredients.length} items`);
+  
   if (!apiKey) {
-    console.error('Gemini API Key is missing');
+    console.error('[askDrinkingMan] Gemini API Key is missing');
     return null;
   }
 
+  const languageMap: Record<string, string> = {
+    'pt': 'Portuguese (Brazil)',
+    'es': 'Spanish',
+    'en': 'English'
+  };
+
   const t = locale === 'pt' ? 'portuguese' : locale === 'es' ? 'spanish' : 'english';
-  const targetLanguage = t; // Keeping variable name for prompt clarity
+  // Use robust mapping or fallback
+  const targetLanguage = languageMap[locale] || 'English'; 
+  console.log(`[askDrinkingMan] Target Language: ${targetLanguage}`);
 
   // Construct the inventory constraint string if applicable
   const inventoryConstraint = unavailableIngredients.length > 0
