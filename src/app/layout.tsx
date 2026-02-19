@@ -9,7 +9,7 @@ const montserratAlternates = Montserrat_Alternates({
 });
 
 export const metadata: Metadata = {
-  title: "The Drinking Man | Curadoria de Mixologia & IA",
+  title: "The Drinking Man",
   description:
     "Explore a coquetelaria moderna com The Drinking Man. Uma coleção curada por um mixologista humano, potencializada por análise de dados e IA.",
   keywords: [

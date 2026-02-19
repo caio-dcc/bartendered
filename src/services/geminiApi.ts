@@ -47,7 +47,7 @@ export async function askDrinkingMan(
     : "";
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
     const prompt = `
     Act as "DrinkingMan", a sophisticated, witty, and knowledgeable cocktail expert.
@@ -132,6 +132,9 @@ export async function enrichCocktailDetails(name: string, ingredients: string[],
     console.error('Gemini API Key is missing');
     return null;
   }
+  
+  // Use consistent model
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
   const languageMap: Record<string, string> = {
     'pt': 'Portuguese (Brazil)',
@@ -179,6 +182,61 @@ export async function enrichCocktailDetails(name: string, ingredients: string[],
     return JSON.parse(cleanText) as DrinkingManResponse;
   } catch (error) {
     console.error('Error enriching cocktail details:', error);
+    return null;
+  }
+}
+
+export async function getMoreCocktailInfo(
+  name: string,
+  ingredients: string[],
+  locale: string = 'en'
+): Promise<import('@/types').MoreCocktailInfo | null> {
+  if (!apiKey) {
+    console.error('Gemini API Key is missing');
+    return null;
+  }
+
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+
+  const languageMap: Record<string, string> = {
+    'pt': 'Portuguese (Brazil)',
+    'es': 'Spanish',
+    'en': 'English'
+  };
+
+  const targetLanguage = languageMap[locale] || 'English';
+
+  const prompt = `
+    You are DrinkingMan, a sophisticated cocktail expert.
+    
+    I need detailed, extra information for the cocktail "${name}" (Ingredients: ${ingredients.join(', ')}).
+    
+    Respond strictly in ${targetLanguage}.
+    
+    Return ONLY a JSON object with this structure:
+    {
+      "history": "A detailed and engaging history of the drink (approx 3-4 sentences).",
+      "funFact": "A surprising trivia fact different from the usual ones.",
+      "foodPairings": ["Dish 1", "Dish 2", "Dish 3"],
+      "servingTips": "Expert advice on how to serve or garnish it perfectly.",
+      "similarDrinks": ["Drink 1", "Drink 2", "Drink 3"]
+    }
+    
+    Do NOT use markdown. Just raw JSON.
+  `;
+
+  try {
+    const result = await model.generateContent({
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      generationConfig: GENERATION_CONFIG,
+    });
+
+    const text = result.response.text();
+    const cleanText = text.replace(/```json/g, '').replace(/```/g, '').trim();
+
+    return JSON.parse(cleanText);
+  } catch (error) {
+    console.error('Error getting more cocktail info:', error);
     return null;
   }
 }

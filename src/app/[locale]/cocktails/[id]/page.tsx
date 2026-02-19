@@ -9,8 +9,21 @@ import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ArrowLeft, Loader2, Sparkles, BookOpen } from "lucide-react";
+import {
+  ArrowLeft,
+  Loader2,
+  Sparkles,
+  BookOpen,
+  Info,
+  ChefHat,
+  Utensils,
+  Lightbulb,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
+import { motion, AnimatePresence } from "framer-motion";
+import { MoreCocktailInfo } from "@/types";
 
 export default function CocktailDetailsPage() {
   const t = useTranslations("Details");
@@ -22,6 +35,37 @@ export default function CocktailDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [aiLoading, setAiLoading] = useState(false);
   const locale = useLocale();
+  const [unit, setUnit] = useState<"standard" | "metric">("standard");
+
+  // More Info State
+  const [moreInfo, setMoreInfo] = useState<MoreCocktailInfo | null>(null);
+  const [moreInfoLoading, setMoreInfoLoading] = useState(false);
+  const [isMoreInfoOpen, setIsMoreInfoOpen] = useState(false);
+
+  const handleMoreInfo = async () => {
+    if (moreInfo || !cocktail) return;
+
+    setMoreInfoLoading(true);
+
+    try {
+      const { getMoreCocktailInfo } = await import("@/services/geminiApi");
+      const ingredients = getIngredients().map((i) => i.ingredient);
+
+      const info = await getMoreCocktailInfo(
+        cocktail.strDrink,
+        ingredients,
+        locale,
+      );
+
+      if (info) {
+        setMoreInfo(info);
+      }
+    } catch (error) {
+      console.error("Failed to fetch more info", error);
+    } finally {
+      setMoreInfoLoading(false);
+    }
+  };
 
   // Import local data
   // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -125,9 +169,6 @@ export default function CocktailDetailsPage() {
     );
   }
 
-  // Unit state
-  const [unit, setUnit] = useState<"standard" | "metric">("standard");
-
   // Helper to extract ingredients and measures
   const getIngredients = () => {
     const ingredients = [];
@@ -165,7 +206,7 @@ export default function CocktailDetailsPage() {
 
   return (
     <div className="min-h-screen bg-background py-16 px-4">
-      <div className="container mx-auto max-w-5xl">
+      <div className="container mx-auto max-w-7xl">
         <Link
           href="/cocktails"
           className="inline-flex items-center text-primary mb-6 hover:underline"
@@ -253,37 +294,31 @@ export default function CocktailDetailsPage() {
                       <p className="text-sm">{description.funFact}</p>
                     </div>
                   )}
+
+                  {/* More Info Button */}
+                  <div className="pt-4 flex justify-end">
+                    <Button
+                      onClick={() => {
+                        setIsMoreInfoOpen(!isMoreInfoOpen);
+                        if (!isMoreInfoOpen && !moreInfo) {
+                          handleMoreInfo();
+                        }
+                      }}
+                      variant="outline"
+                      className="gap-2 border-primary/30 text-primary hover:bg-primary/5 hover:text-primary transition-all duration-300"
+                    >
+                      <Sparkles className="w-4 h-4" />
+                      {t("moreInfo") || "More Details"}
+                      {isMoreInfoOpen ? (
+                        <ChevronUp className="w-4 h-4 ml-1" />
+                      ) : (
+                        <ChevronDown className="w-4 h-4 ml-1" />
+                      )}
+                    </Button>
+                  </div>
                 </div>
               ) : null}
             </div>
-
-            {/* Extra Images Gallery */}
-            {(cocktail.extraImage1 ||
-              cocktail.extraImage2 ||
-              cocktail.extraImage3) && (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
-                {[
-                  cocktail.extraImage1,
-                  cocktail.extraImage2,
-                  cocktail.extraImage3,
-                ].map(
-                  (img, idx) =>
-                    img && (
-                      <div
-                        key={idx}
-                        className="relative h-48 w-full rounded-lg overflow-hidden shadow-md border border-primary/10 group"
-                      >
-                        <Image
-                          src={img}
-                          alt={`Ambience ${idx + 1}`}
-                          fill
-                          className="object-cover group-hover:scale-110 transition-transform duration-500"
-                        />
-                      </div>
-                    ),
-                )}
-              </div>
-            )}
           </div>
 
           {/* Details Section */}
@@ -335,12 +370,126 @@ export default function CocktailDetailsPage() {
               <h2 className="text-2xl font-secondary text-primary mb-4 border-b border-primary/20 pb-2">
                 {t("preparation")}
               </h2>
-              <p className="text-lg leading-relaxed text-secondary/80 whitespace-pre-line">
-                {locale === "pt" && cocktail.strInstructionsPT
+              <div className="text-lg leading-relaxed text-secondary/80 space-y-2">
+                {(locale === "pt" && cocktail.strInstructionsPT
                   ? cocktail.strInstructionsPT
-                  : cocktail.strInstructions}
-              </p>
+                  : cocktail.strInstructions
+                )
+                  ?.split(".")
+                  .filter((step) => step.trim().length > 0)
+                  .map((step, idx) => (
+                    <p key={idx}>- {step.trim()}.</p>
+                  ))}
+              </div>
             </div>
+
+            <AnimatePresence>
+              {isMoreInfoOpen && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, height: "auto", scale: 1 }}
+                  exit={{ opacity: 0, height: 0, scale: 0.95 }}
+                  transition={{ duration: 0.3 }}
+                  className="overflow-hidden"
+                >
+                  <div className="bg-primary/5 p-6 rounded-xl border border-primary/10 shadow-sm mb-6">
+                    <h3 className="text-lg font-semibold text-primary mb-6 flex items-center gap-2 border-b border-primary/10 pb-4">
+                      <Sparkles className="w-5 h-5" />
+                      {t("moreInfoDescription") || "Discover hidden details"}
+                    </h3>
+
+                    {moreInfoLoading ? (
+                      <div className="flex flex-col items-center justify-center py-8 space-y-4 text-muted-foreground animate-pulse">
+                        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+                        <span className="text-base font-medium">
+                          {t("consultingBartender") ||
+                            "Consulting the Head Bartender..."}
+                        </span>
+                      </div>
+                    ) : moreInfo ? (
+                      <div className="space-y-8">
+                        {/* Extended History */}
+                        <div className="space-y-2">
+                          <h4 className="font-bold flex items-center gap-2 text-primary text-sm uppercase tracking-wide">
+                            <BookOpen className="w-4 h-4" />
+                            {t("moreHistory") || "More about the history"}
+                          </h4>
+                          <p className="text-sm text-foreground/80 leading-relaxed pl-6 border-l-2 border-primary/20">
+                            {moreInfo.history}
+                          </p>
+                        </div>
+
+                        {/* Fun Fact */}
+                        <div className="space-y-2">
+                          <h4 className="font-bold flex items-center gap-2 text-primary text-sm uppercase tracking-wide">
+                            <Lightbulb className="w-4 h-4" />
+                            {t("didYouKnow")}
+                          </h4>
+                          <p className="text-sm text-foreground/80 font-medium pl-6">
+                            {moreInfo.funFact}
+                          </p>
+                        </div>
+
+                        {/* Serving Tips */}
+                        <div className="space-y-2">
+                          <h4 className="font-bold flex items-center gap-2 text-primary text-sm uppercase tracking-wide">
+                            <ChefHat className="w-4 h-4" />
+                            {t("servingTips")}
+                          </h4>
+                          <p className="text-sm text-foreground/80 pl-6">
+                            {moreInfo.servingTips}
+                          </p>
+                        </div>
+
+                        {/* Food Pairings */}
+                        <div className="space-y-2">
+                          <h4 className="font-bold flex items-center gap-2 text-primary text-sm uppercase tracking-wide">
+                            <Utensils className="w-4 h-4" />
+                            {t("perfectPairings")}
+                          </h4>
+                          <div className="flex flex-wrap gap-2 pl-6">
+                            {moreInfo.foodPairings.map((pairing, i) => (
+                              <span
+                                key={i}
+                                className="px-3 py-1 bg-background rounded-full border border-primary/10 text-xs text-foreground/80 shadow-sm"
+                              >
+                                {pairing}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Similar Drinks */}
+                        <div className="space-y-2">
+                          <h4 className="font-bold flex items-center gap-2 text-primary text-sm uppercase tracking-wide">
+                            <Info className="w-4 h-4" />
+                            {t("similarDrinks")}
+                          </h4>
+                          <div className="flex flex-wrap gap-2 pl-6">
+                            {moreInfo.similarDrinks.map((drink, i) => (
+                              <Badge
+                                key={i}
+                                variant="secondary"
+                                className="px-2 py-0.5 text-xs"
+                              >
+                                {drink}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-center text-muted-foreground py-8">
+                        <p className="text-sm">
+                          {t("errorLoadingInfo") ||
+                            "Could not load additional information."}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </div>

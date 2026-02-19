@@ -1,8 +1,7 @@
 "use client";
 
-import Link from "next/link";
+import { Link, usePathname, useRouter } from "@/i18n/routing";
 import { Wine, Globe } from "lucide-react";
-import { usePathname, useRouter } from "@/i18n/routing";
 import { useTranslations, useLocale } from "next-intl";
 import {
   Select,
@@ -12,6 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import GooeyNav from "@/components/ui/GooeyNav";
+import { MobileNav } from "@/components/shared/MobileNav";
 
 export function Navbar() {
   const t = useTranslations("Navigation");
@@ -20,7 +20,8 @@ export function Navbar() {
   const locale = useLocale();
 
   const handleLanguageChange = (value: string) => {
-    router.replace(pathname, { locale: value });
+    // @ts-ignore -- locale type mismatch in validator
+    router.replace(pathname, { locale: value as "en" | "pt" | "es" });
   };
 
   return (
@@ -33,6 +34,7 @@ export function Navbar() {
           </span>
         </Link>
 
+        {/* Desktop Nav - Hidden on mobile */}
         <div className="hidden md:flex items-center space-x-8">
           <div className="hidden md:block">
             <GooeyNav
@@ -73,6 +75,24 @@ export function Navbar() {
               </SelectContent>
             </Select>
           </div>
+        </div>
+
+        {/* Mobile Nav - Visible only on mobile */}
+        <div className="md:hidden flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <Globe className="h-4 w-4 text-muted-foreground" />
+            <Select onValueChange={handleLanguageChange} defaultValue={locale}>
+              <SelectTrigger className="w-[70px] h-8 bg-secondary border-none focus:ring-0 px-1 text-primary-foreground hover:text-primary-foreground/90 shadow-sm">
+                <SelectValue placeholder="Lang" />
+              </SelectTrigger>
+              <SelectContent className="bg-secondary text-primary-foreground">
+                <SelectItem value="pt">PT</SelectItem>
+                <SelectItem value="en">EN</SelectItem>
+                <SelectItem value="es">ES</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <MobileNav />
         </div>
       </div>
     </nav>

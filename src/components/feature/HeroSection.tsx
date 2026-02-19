@@ -10,18 +10,16 @@ export async function HeroSection() {
   return (
     <section className="relative h-[80vh] w-full overflow-hidden flex items-center justify-center">
       {/* Video Overlay */}
-      <div className="absolute inset-0 bg-black/60 z-10" />
+      <div className="absolute inset-0 bg-black/30 z-10" />
 
-      {/* Background Video */}
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="absolute inset-0 w-full h-full object-cover z-0 scale-110 blur-[1px]"
-      >
-        <source src="/background-video.mp4" type="video/mp4" />
-      </video>
+      {/* Background Image */}
+      <div className="absolute inset-0 z-0">
+        <img
+          src="https://images.unsplash.com/photo-1566417713940-fe7c737a9ef2?q=80&w=1920&auto=format&fit=crop"
+          alt="Bar Background"
+          className="w-full h-full object-cover scale-105 blur-[1px]"
+        />
+      </div>
 
       <div className="relative z-20 text-center container px-4 space-y-6">
         <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-4 font-secondary tracking-wider">

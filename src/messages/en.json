@@ -103,7 +103,16 @@
       "Jar": "Jar",
       "Beer mug": "Beer mug",
       "Coupe Glass": "Coupe Glass"
-    }
+    },
+    "moreInfo": "More Details",
+    "moreInfoDescription": "Discover hidden details, pairings, and expert tips.",
+    "moreHistory": "More about the history",
+    "consultingBartender": "Consulting the Head Bartender...",
+    "errorLoadingInfo": "Could not load additional information.",
+    "servingTips": "Serving Tips",
+    "perfectPairings": "Perfect Pairings",
+    "similarDrinks": "You Might Also Like",
+    "didYouKnow": "Did You Know?"
   },
   "DrinkingMan": {
     "badge": "AI Sommelier",

@@ -127,3 +127,11 @@ export interface DrinkingManResponse {
   funFact?: string;
   visualMatch?: string; // e.g. "Blue Lagoon" if the user wants something blue
 }
+
+export interface MoreCocktailInfo {
+  history: string;
+  funFact: string;
+  foodPairings: string[];
+  servingTips: string;
+  similarDrinks: string[];
+}

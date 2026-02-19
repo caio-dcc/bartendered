@@ -103,7 +103,16 @@
       "Jar": "Pote",
       "Beer mug": "Caneca de Cerveja",
       "Coupe Glass": "Taça Coupe"
-    }
+    },
+    "moreInfo": "Mais Detalhes",
+    "moreInfoDescription": "Descubra detalhes ocultos, harmonizações e dicas de especialistas.",
+    "moreHistory": "Mais sobre a história",
+    "consultingBartender": "Consultando o Bartender Chefe...",
+    "errorLoadingInfo": "Não foi possível carregar informações adicionais.",
+    "servingTips": "Dicas de Serviço",
+    "perfectPairings": "Harmonização Perfeita",
+    "similarDrinks": "Você Também Pode Gostar",
+    "didYouKnow": "Você Sabia?"
   },
   "DrinkingMan": {
     "badge": "Sommelier IA",

@@ -101,7 +101,16 @@
       "Jar": "Tarro",
       "Beer mug": "Jarra de Cerveza",
       "Coupe Glass": "Copa Coupe"
-    }
+    },
+    "moreInfo": "Más Detalles",
+    "moreInfoDescription": "Descubre detalles ocultos, maridajes y consejos de expertos.",
+    "moreHistory": "Más sobre la historia",
+    "consultingBartender": "Consultando al Bartender Jefe...",
+    "errorLoadingInfo": "No se pudo cargar información adicional.",
+    "servingTips": "Consejos de Servicio",
+    "perfectPairings": "Maridaje Perfecto",
+    "similarDrinks": "También te Podría Gustar",
+    "didYouKnow": "¿Sabías Que?"
   },
   "DrinkingMan": {
     "badge": "Sommelier IA",
